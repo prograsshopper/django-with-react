@@ -3,12 +3,13 @@ from django.db import models
 
 class Post(models.Model):
     message = models.TextField()
-    is_public = models.BooleanField(default=False)
+    photo = models.ImageField(blank=True, upload_to='instagram/post/%Y/%m/%d')
+    is_public = models.BooleanField(default=False, verbose_name='공개여부')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Custo object id : ({self.id})"
+        return f"Custom object id : ({self.id})"
     
     # def message_length(self):
     #     return len(self.message)
