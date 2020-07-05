@@ -111,3 +111,4 @@ backup
 
 # IDE config files
 .idea/
+*/media/*
