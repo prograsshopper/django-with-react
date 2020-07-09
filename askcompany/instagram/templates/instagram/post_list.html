@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <title>Instagram - Posts</title>
+</head>
+<body>
+    <form action="" method="get">
+        <input type="text" name="q" value="{{ q }}" />
+        <input type="submit" value="검색"/>
+    </form>
+    {% for post in post_list %}
+        <tr>
+            <td>
+                {{ post.message }}
+            </td>
+            <td>
+                {{ post.photo }}
+            </td>
+        </tr>
+    {% endfor %}
+</body>
+</html>
