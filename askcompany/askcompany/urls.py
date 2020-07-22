@@ -19,8 +19,19 @@ from django.urls import path, include
 # from askcompany import settings
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView, RedirectView
+
+
+class RootView(TemplateView):
+    template_name = "root.html"
+
 
 urlpatterns = [
+    # path('', RootView.as_view(), name='root'),
+    path('', RedirectView.as_view(
+        # url='/instagram/'
+        pattern_name='instagram:post_list'
+        ), name='root'),
     path('admin/', admin.site.urls),
     path('instagram/', include('instagram.urls')),
     path('accounts/', include('accounts.urls')),
