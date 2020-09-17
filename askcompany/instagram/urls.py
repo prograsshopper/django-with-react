@@ -10,6 +10,7 @@ register_converter(DayConverter, 'day')
 app_name = 'instagram' # 향휴 reverse등을 사용할 때를 대비
 
 urlpatterns = [
+    path('', views.post_new, name='post_new'),
     path('', views.post_list, name='post_list'),
     path('<int:pk>/', views.post_detail, name='post_detail'),
     # path('archives/<int:year>/', views.archives_year),

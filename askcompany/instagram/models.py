@@ -1,11 +1,19 @@
 from django.conf import settings
+from django.core.validators import MinLengthValidator 
 from django.db import models
 from django.urls import reverse
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    # post_set = models.ManyToManyField(Post)  
+
+
 class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    message = models.TextField()
+    message = models.TextField(
+        validators=[MinLengthValidator(10)]
+    )
     photo = models.ImageField(blank=True, upload_to='instagram/post/%Y/%m/%d')
     tag_set = models.ManyToManyField('Tag', blank=True)
     is_public = models.BooleanField(default=False, verbose_name='공개여부')
@@ -32,9 +40,4 @@ class Comment(models.Model):
     # post_id 라는 애가 생김
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
-class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    # post_set = models.ManyToManyField(Post)    
+    updated_at = models.DateTimeField(auto_now=True)  
