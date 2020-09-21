@@ -1,85 +1,49 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView, DetailView, ArchiveIndexView, YearArchiveView
+from django.views.generic import ListView, DetailView, ArchiveIndexView, \
+    YearArchiveView, CreateView, UpdateView, DeleteView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest, Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse, reverse_lazy
 
 from .models import Post
 from .forms import PostForm
 
-@login_required
-def post_new(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            # messages.add_message(request, messages.SUCCESS, '새 글이 등록되었습니다')
-            messages.success(request, '새 글이 등록되었습니다') # shortcut
-            return redirect(post)
-    else:
-        form = PostForm()
 
-    return render(request, 'instagram/post_form.html', {
-        'form': form,
-        'post': None,
-    })
+class PostCreateView(CreateView):
+    model = Post
+    form_class = PostForm
 
-@login_required
-def post_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-
-    if post.author != request.user:
-        messages.error(request, '작성자만 수정이 가능합니다')
-        return redirect(post)
-
-    if request == 'POST':
-        form = PostForm(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
-            return redirect(post)
-    else:
-        form = PostForm(instance=post)
-
-    return render(request, 'instagram/post_form.html', {
-        'form': form,
-        'post': post
-    })
-
-@login_required
-def post_delete(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == 'POST':
-        post.delete()
-        messages.success(request, "포스트를 삭제했습니다.")
-        return redirect('instagram:post_list')
-    return render(request, 'instagram/post_confirm_delete.html', {
-        'post': post
-    })
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.author = self.request.user
+        return super().form_valid(form)
+    
+post_new = PostCreateView.as_view()
 
 
-# version 2
-# @method_decorator(login_required, name='dispatch')
-# class PostListView(ListView):
-#     model = Post
-#     paginate_by = 10
+class PostUpdateView(UpdateView):
+    model = Post
+    form_class = PostForm
+
+    def form_vlaid(self, form):
+        messages.success(self.request, '포스트를 수정했습니다.')
+        return super().form_valid(form)
 
 
-# version 3
-# class PostListView(LoginRequiredMixin, ListView):
-#     model = Post
-#     paginate_by = 10
-
-# post_list = PostListView.as_view()
+post_edit = PostUpdateView.as_view()
 
 
+class PostDeleteView(LoginRequiredMixin, DeleteView):
+    model = Post
+    success_url = reverse_lazy('instagram:post_list')
 
-# post_list = ListView.as_view(model=Post, paginate_by=5)
+
+post_delete = PostDeleteView.as_view()
+
+
 @login_required
 def post_list(request):
     qs = Post.objects.all()
@@ -93,19 +57,6 @@ def post_list(request):
     })
 
 
-# def post_detail(request: HttpResponse, pk: int) -> HttpResponse:
-#     post = get_object_or_404(Post, pk=pk)
-#     # try:
-#     #     post = Post.objects.get(pk=pk)
-#     # except Post.DoesNotExist:
-#     #     raise Http404
-#     return render(request, 'instagram/post_detail.html', {'post': post})
-
-# post_detail = DetailView.as_view(
-#     model=Post,
-#     queryset=Post.objects.filter(is_public=True))
-
-
 class PostDetailView(DetailView):
     model = Post
     # queryset = Post.objects.filter(is_public=True)
@@ -117,9 +68,6 @@ class PostDetailView(DetailView):
         return qs
 
 post_detail= PostDetailView.as_view()
-
-# def archives_year(request, year):
-#     return HttpResponse(f"{year}년 archives")
 
 post_archive = ArchiveIndexView.as_view(model=Post, date_field='created_at', paginate_by=3)
 post_archive_year = YearArchiveView.as_view(model=Post, date_field='created_at')
