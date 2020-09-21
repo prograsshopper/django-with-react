@@ -11,8 +11,8 @@ class PostForm(forms.ModelForm):
             'message', 'photo', 'tag_set', 'is_public'
         ]
     
-    def clean_message(self):
-        message = self.cleaned_data.get('message')
-        if message:
-            message = re.sub(r'[a-zA-Z]+', '', message)
-        return message
+    # def clean_message(self):
+    #     message = self.cleaned_data.get('message')
+    #     if message:
+    #         message = re.sub(r'[a-zA-Z]+', '', message)
+    #     return message

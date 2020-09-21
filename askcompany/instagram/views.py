@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, DetailView, ArchiveIndexView, YearArchiveView
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest, Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -11,12 +11,14 @@ from .forms import PostForm
 
 @login_required
 def post_new(request):
-    if request == 'POST':
+    if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
             post.save()
+            # messages.add_message(request, messages.SUCCESS, '새 글이 등록되었습니다')
+            messages.success(request, '새 글이 등록되었습니다') # shortcut
             return redirect(post)
     else:
         form = PostForm()
@@ -46,6 +48,7 @@ def post_edit(request, pk):
 
     return render(request, 'instagram/post_form.html', {
         'form': form,
+        'post': post
     })
 
 # version 2
@@ -56,24 +59,26 @@ def post_edit(request, pk):
 
 
 # version 3
-class PostListView(LoginRequiredMixin, ListView):
-    model = Post
-    paginate_by = 10
+# class PostListView(LoginRequiredMixin, ListView):
+#     model = Post
+#     paginate_by = 10
 
-post_list = PostListView.as_view()
+# post_list = PostListView.as_view()
 
 
 
 # post_list = ListView.as_view(model=Post, paginate_by=5)
-# def post_list(request):
-#     qs = Post.objects.all()
-#     q = request.GET.get('q', '')
-#     if q:
-#         qs = qs.filter(message__icontains=q)
-#     return render(request, 'instagram/post_list.html', {
-#         'post_list': qs,
-#         'q': q,
-#     })
+@login_required
+def post_list(request):
+    qs = Post.objects.all()
+    q = request.GET.get('q', '')
+    if q:
+        qs = qs.filter(message__icontains=q)
+    messages.info(request, 'messages 테스트')
+    return render(request, 'instagram/post_list.html', {
+        'post_list': qs,
+        'q': q,
+    })
 
 
 # def post_detail(request: HttpResponse, pk: int) -> HttpResponse:
