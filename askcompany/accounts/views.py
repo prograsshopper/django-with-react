@@ -49,9 +49,17 @@ def profile_edit(request):
     })
 
 
-signup = CreateView.as_view(
-    model=User,
-    form_class=UserCreationForm,
-    success_url=settings.LOGIN_URL,
-    template_name="accounts/signup_form.html"
-)
+class SignupView(CreateView):
+    model= User
+    form_class = UserCreationForm
+    success_url = settings.LOGIN_REDIRECT_URL
+    template_name = "accounts/signup_form.html"
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = self.object
+        auth_login(self.request, user)
+        return response
+
+
+signup = SignupView.as_view()
