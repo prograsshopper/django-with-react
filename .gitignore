@@ -113,3 +113,5 @@ backup
 .idea/
 */media/*
 staticfiles
+
+.vscode
