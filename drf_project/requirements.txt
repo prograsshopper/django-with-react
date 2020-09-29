@@ -4,3 +4,5 @@ pillow
 django-extensions
 django-debug-toolbar
 django-bootstrap4
+djangorestframework-jwt
+requests
