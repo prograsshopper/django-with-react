@@ -1,5 +1,6 @@
 import React from 'react';
 import 'App.css';
+import { Button } from 'antd';
 
 
 
@@ -7,7 +8,13 @@ import 'App.css';
 function App() {
   return (
     <div>
-      Hello react
+        <button>
+        Hello react
+        </button>
+
+        <Button type="primary" onClick={ () => console.log("clicked") }>
+            Hello Antd
+        </Button>
     </div>
   );
 }
