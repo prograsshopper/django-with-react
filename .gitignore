@@ -115,3 +115,5 @@ backup
 staticfiles
 
 .vscode
+
+.DS_Store
